@@ -20,7 +20,23 @@ class FriendTable(tag: slick.lifted.Tag) extends Table[Friends](tag, "friend") {
   def nick     = column[String]("nick")
   def age      = column[Int]("age")
 
+  def pk2 = primaryKey("name", name()())
+
   def * = (id, name()(), nick, age).mapTo[Friends]
+
+}
+
+class FriendTable1234(tag: slick.lifted.Tag) extends Table[Unit](tag, "friend") {
+  self =>
+
+  def id       = column[Option[Long]]("id", O.AutoInc)
+  def name()() = column[String]("name")
+  def nick     = column[String]("nick")
+  def age      = column[Int]("age")
+
+  def pk2 = primaryKey("name", name()())
+
+  def * = ()
 
 }
 
@@ -32,19 +48,26 @@ object SqlGen extends App {
 
   val db = Database.forURL(s"jdbc:h2:mem:leafaaa;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver", keepAliveConnection = true)
 
-  class AATable(val friendTable: FriendTable) extends Table[Any](friendTable.tableTag, friendTable.tableName) {
-    def * = RepConverterUtils.fromTable(friendTable)
+  class AATable(val friendTable: FriendTable1234) extends Table[Any](friendTable.tableTag, friendTable.tableName) {
+    override def tableConstraints = friendTable.tableConstraints
+    override def *                = RepConverterUtils.fromTable(friendTable)
   }
 
-  val aaTq = TableQuery(cons => new AATable(new FriendTable(cons)))
+  val aaTq = TableQuery(cons => new AATable(new FriendTable1234(cons)))
+
+  val bbTq = RepConverterUtils.fromInstance(cons => new FriendTable1234(cons))
 
   println(s"""
-       |原 table 建表语句
-       |${friendTq.schema.createStatements.toList}
-       |macro 生成的建表语句
-       |${aaTq.schema.createStatements.toList}
-       |是否相等
-       |${friendTq.schema.createStatements.toList == aaTq.schema.createStatements.toList}
-     """.stripMargin)
+    |原 table 建表语句
+    |${friendTq.schema.createStatements.toList}
+    |macro 生成的建表语句
+    |${aaTq.schema.createStatements.toList}
+    |更高级的 macro 生成语句
+    |${bbTq.schema.createStatements.toList}
+    |是否相等1
+    |${friendTq.schema.createStatements.toList == aaTq.schema.createStatements.toList}
+    |是否相等2
+    |${friendTq.schema.createStatements.toList == bbTq.schema.createStatements.toList}
+    |""".stripMargin)
 
 }
