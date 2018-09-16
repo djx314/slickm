@@ -29,10 +29,10 @@ class FriendTable(tag: slick.lifted.Tag) extends Table[Friends](tag, "friend") {
 class FriendTable1234(tag: slick.lifted.Tag) extends Table[Unit](tag, "friend") {
   self =>
 
-  def id       = column[Option[Long]]("id", O.AutoInc)
-  def name()() = column[String]("name")
-  def nick     = column[String]("nick")
-  def age      = column[Int]("age")
+  def id                                       = column[Option[Long]]("id", O.AutoInc)
+  def name()()()()()()()()()()()()()()()()()() = column[String]("name")
+  def nick                                     = column[String]("nick")
+  def age                                      = column[Int]("age")
 
   def pk2 = primaryKey("name", name()())
 
@@ -48,7 +48,7 @@ object SqlGen extends App {
 
   val db = Database.forURL(s"jdbc:h2:mem:leafaaa;DB_CLOSE_DELAY=-1", driver = "org.h2.Driver", keepAliveConnection = true)
 
-  class AATable(val friendTable: FriendTable1234) extends Table[Any](friendTable.tableTag, friendTable.tableName) {
+  class AATable(friendTable: FriendTable1234) extends Table[Any](friendTable.tableTag, friendTable.tableName) {
     override def tableConstraints = friendTable.tableConstraints
     override def *                = RepConverterUtils.fromTable(friendTable)
   }
