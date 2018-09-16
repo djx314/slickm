@@ -8,7 +8,7 @@ import scala.concurrent.{duration, Await, Future}
 case class Friends(
     id: Option[Long] = None
   , name: String
-  , nick: String
+  , nick: Option[String]
   , age: Int
 )
 
@@ -16,8 +16,8 @@ class FriendTable(tag: slick.lifted.Tag) extends Table[Friends](tag, "friend") {
   self =>
 
   def id       = column[Option[Long]]("id", O.AutoInc)
-  def name()() = column[String]("name")
-  def nick     = column[String]("nick")
+  def name()() = column[String]("name") //只要是无参可以直接调用的属性都可以通过，包括 val var
+  def nick     = column[String]("nick").? //.? 变成 option 并不影响建表时需要 not null，请使用 Option type
   def age      = column[Int]("age")
 
   def pk2 = primaryKey("name", name()())
